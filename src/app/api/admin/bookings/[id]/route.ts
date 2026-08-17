@@ -11,6 +11,10 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (!db) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  }
+
   const { id } = await params;
 
   const booking = await db.booking.findUnique({
@@ -31,6 +35,10 @@ export async function PUT(
   const session = await getAdminSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!db) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
   }
 
   const { id } = await params;
@@ -72,6 +80,10 @@ export async function DELETE(
   const session = await getAdminSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!db) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
   }
 
   const { id } = await params;

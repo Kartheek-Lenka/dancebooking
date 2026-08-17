@@ -3,7 +3,6 @@ import { getAdminSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { BookingTable } from "@/components/admin/booking-table";
 import { BookingFilters } from "@/components/admin/booking-filters";
-import { Prisma } from "@prisma/client";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -18,6 +17,21 @@ export default async function AdminBookingsPage({
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
 
+  if (!db) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Bookings</h1>
+          <p className="text-sm text-gray-500">Manage all booking requests</p>
+        </div>
+        <BookingFilters />
+        <div className="rounded-xl border bg-white p-8 text-center text-gray-500 shadow-sm">
+          Database not configured. Bookings will appear here once the database is set up.
+        </div>
+      </div>
+    );
+  }
+
   const params = await searchParams;
   const search = typeof params.search === "string" ? params.search : "";
   const status = typeof params.status === "string" ? params.status : "";
@@ -27,16 +41,17 @@ export default async function AdminBookingsPage({
   const limit = 20;
   const skip = (page - 1) * limit;
 
-  const where: Prisma.BookingWhereInput = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const where: any = {};
 
   if (search) {
     where.OR = [
-      { name: { contains: search, mode: "insensitive" } },
-      { email: { contains: search, mode: "insensitive" } },
+      { name: { contains: search } },
+      { email: { contains: search } },
       { phone: { contains: search } },
     ];
   }
-  if (status) where.status = status as "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+  if (status) where.status = status;
   if (danceStyle) where.danceStyle = danceStyle;
   if (occasionType) where.occasionType = occasionType;
 

@@ -8,6 +8,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (!db) {
+    return NextResponse.json(
+      { error: "Database not configured", bookings: [], total: 0, page: 1, totalPages: 0 },
+      { status: 200 }
+    );
+  }
+
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search") || "";
   const status = searchParams.get("status") || "";

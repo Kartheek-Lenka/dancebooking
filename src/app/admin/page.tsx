@@ -15,6 +15,21 @@ export default async function AdminDashboardPage() {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
 
+  if (!db) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-sm text-gray-500">Overview of your bookings</p>
+        </div>
+        <DashboardStats stats={{ total: 0, pending: 0, confirmed: 0, completed: 0, cancelled: 0 }} />
+        <div className="rounded-xl border bg-white p-8 text-center text-gray-500 shadow-sm">
+          Database not configured. Bookings will appear here once the database is set up.
+        </div>
+      </div>
+    );
+  }
+
   const [total, pending, confirmed, completed, cancelled, recentBookings] =
     await Promise.all([
       db.booking.count(),

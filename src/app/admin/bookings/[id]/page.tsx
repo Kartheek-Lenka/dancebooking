@@ -18,6 +18,17 @@ export default async function BookingDetailPage({
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
 
+  if (!db) {
+    return (
+      <div className="mx-auto max-w-3xl space-y-6">
+        <h1 className="text-2xl font-bold text-gray-900">Booking Details</h1>
+        <div className="rounded-xl border bg-white p-8 text-center text-gray-500 shadow-sm">
+          Database not configured. Booking details will appear here once the database is set up.
+        </div>
+      </div>
+    );
+  }
+
   const { id } = await params;
 
   const booking = await db.booking.findUnique({

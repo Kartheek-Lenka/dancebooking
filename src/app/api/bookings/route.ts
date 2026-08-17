@@ -4,8 +4,14 @@ import { bookingSchema } from "@/lib/validations";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    if (!db) {
+      return NextResponse.json(
+        { error: "Database not configured. Please try again later." },
+        { status: 503 }
+      );
+    }
 
+    const body = await request.json();
     const result = bookingSchema.safeParse(body);
 
     if (!result.success) {
@@ -18,7 +24,6 @@ export async function POST(request: NextRequest) {
 
     const data = result.data;
 
-    // Check for duplicate submissions within last 5 minutes
     const recentDuplicate = await db.booking.findFirst({
       where: {
         email: data.email,

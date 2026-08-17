@@ -11,7 +11,7 @@ export function BookingActions({
   currentStatus,
 }: {
   bookingId: string;
-  currentStatus: "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+  currentStatus: string;
 }) {
   const router = useRouter();
   const [status, setStatus] = useState(currentStatus);

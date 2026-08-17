@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { Prisma } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
   const session = await getAdminSession();
@@ -18,17 +17,18 @@ export async function GET(request: NextRequest) {
   const limit = 20;
   const skip = (page - 1) * limit;
 
-  const where: Prisma.BookingWhereInput = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const where: any = {};
 
   if (search) {
     where.OR = [
-      { name: { contains: search, mode: "insensitive" } },
-      { email: { contains: search, mode: "insensitive" } },
+      { name: { contains: search } },
+      { email: { contains: search } },
       { phone: { contains: search } },
     ];
   }
 
-  if (status) where.status = status as "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+  if (status) where.status = status;
   if (danceStyle) where.danceStyle = danceStyle;
   if (occasionType) where.occasionType = occasionType;
 

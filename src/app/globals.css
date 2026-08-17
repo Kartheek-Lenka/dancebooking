@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Casko Luxury Demo";
+  src: url("/fonts/CaskoLuxuryDemo-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --color-ivory: #FDF8F0;
+  --color-cream: #FAF0E6;
+  --color-gold: #C5A059;
+  --color-gold-light: #D4B77A;
+  --color-gold-dark: #A8853D;
+  --color-maroon: #6B1D2A;
+  --color-maroon-light: #8B2D3A;
+  --color-maroon-dark: #4A1119;
+  --color-warm-dark: #2D1B14;
+  --color-warm-text: #3D2B1F;
+}
+
+@theme inline {
+  --color-ivory: #FDF8F0;
+  --color-cream: #FAF0E6;
+  --color-gold: #C5A059;
+  --color-gold-light: #D4B77A;
+  --color-gold-dark: #A8853D;
+  --color-maroon: #6B1D2A;
+  --color-maroon-light: #8B2D3A;
+  --color-maroon-dark: #4A1119;
+  --color-warm-dark: #2D1B14;
+  --color-warm-text: #3D2B1F;
+}
+
+body {
+  background-color: var(--color-ivory);
+  color: var(--color-warm-text);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+::selection {
+  background-color: var(--color-gold-light);
+  color: var(--color-warm-dark);
+}
+
+input, select, textarea {
+  font-family: inherit;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #e5e1d8 25%, #f0ece3 50%, #e5e1d8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

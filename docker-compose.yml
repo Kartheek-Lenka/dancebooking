@@ -1,15 +1,13 @@
 services:
   db:
-    image: postgres:16-alpine
+    image: mongo:7
     restart: unless-stopped
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: dancebooking
     ports:
-      - "5432:5432"
+      - "27017:27017"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: dancebooking
 
   app:
     build: .
@@ -17,7 +15,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: postgresql://user:password@db:5432/dancebooking?schema=public
+      DATABASE_URL: mongodb://db:27017/dancebooking
       AUTH_SECRET: your-secret-here
       ADMIN_EMAIL: admin@example.com
       ADMIN_PASSWORD: secure-password-here
@@ -26,4 +24,4 @@ services:
       - db
 
 volumes:
-  postgres_data:
+  mongo_data:

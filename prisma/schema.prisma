@@ -8,21 +8,26 @@ datasource db {
 }
 
 model Booking {
-  id              String   @id @default(cuid()) @map("_id")
-  name            String
-  occasionType    String
-  danceStyle      String
-  email           String
-  phone           String
-  performanceDate DateTime
-  performanceType String
-  message         String?
-  status          String   @default("PENDING")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(cuid()) @map("_id")
+  name           String
+  email          String
+  phone          String
+  slotDate       DateTime
+  preferredTime  String
+  lessonMode     String
+  songIndustry   String
+  songPreference String
+  songAlbum      String?
+  address        String?
+  message        String?
+  bookingFee     Int      @default(500)
+  status         String   @default("PENDING")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  @@index([performanceDate])
+  @@index([slotDate])
   @@index([status])
   @@index([createdAt])
   @@index([email])
+  @@index([lessonMode])
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { bookingSchema } from "@/lib/validations";
+import { BOOKING_FEE_INR } from "@/config/site";
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
       where: {
         email: data.email,
         phone: data.phone,
-        performanceDate: new Date(data.performanceDate),
+        slotDate: new Date(data.slotDate),
         createdAt: {
           gte: new Date(Date.now() - 5 * 60 * 1000),
         },
@@ -37,7 +38,10 @@ export async function POST(request: NextRequest) {
 
     if (recentDuplicate) {
       return NextResponse.json(
-        { error: "A similar booking request was recently submitted. Please wait a few minutes before trying again." },
+        {
+          error:
+            "A similar slot request was recently submitted. Please wait a few minutes before trying again.",
+        },
         { status: 429 }
       );
     }
@@ -45,13 +49,20 @@ export async function POST(request: NextRequest) {
     const booking = await db.booking.create({
       data: {
         name: data.name,
-        occasionType: data.occasionType,
-        danceStyle: data.danceStyle,
         email: data.email,
         phone: data.phone,
-        performanceDate: new Date(data.performanceDate),
-        performanceType: data.performanceType,
-        message: data.message || null,
+        slotDate: new Date(data.slotDate),
+        preferredTime: data.preferredTime,
+        lessonMode: data.lessonMode,
+        songIndustry: data.songIndustry,
+        songPreference: data.songPreference,
+        songAlbum: data.songAlbum?.trim() || null,
+        address:
+          data.lessonMode === "HOME_SERVICE"
+            ? data.address?.trim() || null
+            : null,
+        message: data.message?.trim() || null,
+        bookingFee: BOOKING_FEE_INR,
       },
     });
 
@@ -62,7 +73,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Booking creation error:", error);
     return NextResponse.json(
-      { error: "Something went wrong while submitting your request. Please try again." },
+      {
+        error:
+          "Something went wrong while submitting your request. Please try again.",
+      },
       { status: 500 }
     );
   }

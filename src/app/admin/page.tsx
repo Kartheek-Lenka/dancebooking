@@ -3,6 +3,7 @@ import { getAdminSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { DashboardStats } from "@/components/admin/dashboard-stats";
 import { BookingStatusBadge } from "@/components/admin/booking-status-badge";
+import { formatSongIndustry } from "@/lib/songs";
 import Link from "next/link";
 import { format } from "date-fns";
 import type { Metadata } from "next";
@@ -82,12 +83,13 @@ export default async function AdminDashboardPage() {
                     {booking.name}
                   </p>
                   <p className="text-sm text-gray-500">
-                    {booking.occasionType} · {booking.danceStyle}
+                    {formatSongIndustry(booking.songIndustry)} ·{" "}
+                    {booking.songPreference}
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="hidden text-sm text-gray-500 sm:block">
-                    {format(new Date(booking.performanceDate), "MMM d, yyyy")}
+                    {format(new Date(booking.slotDate), "MMM d, yyyy")}
                   </span>
                   <BookingStatusBadge status={booking.status} />
                   <Link

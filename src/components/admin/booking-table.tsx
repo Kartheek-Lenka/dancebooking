@@ -2,18 +2,26 @@ import Link from "next/link";
 import { BookingStatusBadge } from "./booking-status-badge";
 import { Eye } from "lucide-react";
 import { format } from "date-fns";
+import { formatSongIndustry } from "@/lib/songs";
 
 interface Booking {
   id: string;
   name: string;
   email: string;
   phone: string;
-  occasionType: string;
-  danceStyle: string;
-  performanceDate: string;
-  performanceType: string;
+  slotDate: string;
+  preferredTime: string;
+  lessonMode: string;
+  songIndustry: string;
+  songPreference: string;
+  songAlbum?: string | null;
+  bookingFee: number;
   status: string;
   createdAt: string;
+}
+
+function formatLessonMode(mode: string) {
+  return mode === "HOME_SERVICE" ? "Home service" : "Online Zoom";
 }
 
 export function BookingTable({ bookings }: { bookings: Booking[] }) {
@@ -32,10 +40,10 @@ export function BookingTable({ bookings }: { bookings: Booking[] }) {
           <thead>
             <tr className="border-b bg-gray-50">
               <th className="px-4 py-3 text-left font-medium text-gray-500">Name</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-500 hidden sm:table-cell">Occasion</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-500 hidden md:table-cell">Dance Style</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-500 hidden lg:table-cell">Date</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-500 hidden lg:table-cell">Type</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-500 hidden sm:table-cell">Song</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-500 hidden md:table-cell">Industry</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-500 hidden lg:table-cell">Slot</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-500 hidden lg:table-cell">Mode</th>
               <th className="px-4 py-3 text-left font-medium text-gray-500">Status</th>
               <th className="px-4 py-3 text-left font-medium text-gray-500 hidden xl:table-cell">Created</th>
               <th className="px-4 py-3 text-right font-medium text-gray-500">Actions</th>
@@ -47,15 +55,25 @@ export function BookingTable({ bookings }: { bookings: Booking[] }) {
                 <td className="px-4 py-3">
                   <div>
                     <p className="font-medium text-warm-dark">{booking.name}</p>
-                    <p className="text-xs text-gray-500 sm:hidden">{booking.occasionType}</p>
+                    <p className="text-xs text-gray-500 sm:hidden">{booking.songPreference}</p>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-gray-600 hidden sm:table-cell">{booking.occasionType}</td>
-                <td className="px-4 py-3 text-gray-600 hidden md:table-cell">{booking.danceStyle}</td>
-                <td className="px-4 py-3 text-gray-600 hidden lg:table-cell">
-                  {format(new Date(booking.performanceDate), "MMM d, yyyy")}
+                <td className="px-4 py-3 text-gray-600 hidden sm:table-cell max-w-[180px]">
+                  <p className="truncate">{booking.songPreference}</p>
+                  {booking.songAlbum && (
+                    <p className="truncate text-xs text-gray-400">{booking.songAlbum}</p>
+                  )}
                 </td>
-                <td className="px-4 py-3 text-gray-600 hidden lg:table-cell">{booking.performanceType}</td>
+                <td className="px-4 py-3 text-gray-600 hidden md:table-cell">
+                  {formatSongIndustry(booking.songIndustry)}
+                </td>
+                <td className="px-4 py-3 text-gray-600 hidden lg:table-cell">
+                  <p>{format(new Date(booking.slotDate), "MMM d, yyyy")}</p>
+                  <p className="text-xs text-gray-400">{booking.preferredTime}</p>
+                </td>
+                <td className="px-4 py-3 text-gray-600 hidden lg:table-cell">
+                  {formatLessonMode(booking.lessonMode)}
+                </td>
                 <td className="px-4 py-3">
                   <BookingStatusBadge status={booking.status} />
                 </td>

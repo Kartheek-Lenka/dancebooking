@@ -6,19 +6,19 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const videos = [
   {
-    title: "Classical Grace",
+    title: "Classical",
     src: "/videos/classical.mp4",
   },
   {
-    title: "Wedding Performance",
+    title: "Wedding song",
     src: "/videos/wedding.mp4",
   },
   {
-    title: "Western Energy",
+    title: "Western",
     src: "/videos/western.mp4",
   },
   {
-    title: "Group Performance",
+    title: "Group energy",
     src: "/videos/group.mp4",
   },
 ];
@@ -88,7 +88,7 @@ export function VideoCarousel() {
             transition={{ duration: 0.5 }}
             className="text-3xl font-bold text-warm-dark sm:text-4xl"
           >
-            Watch the Performances
+            Watch the Dance
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -97,8 +97,8 @@ export function VideoCarousel() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="mt-4 text-lg text-warm-text/60"
           >
-            Get a glimpse of the energy, expressions and moments we bring to
-            every celebration.
+            A glimpse of the energy and expression you can learn — on Zoom or
+            at home.
           </motion.p>
         </div>
 

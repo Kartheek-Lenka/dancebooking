@@ -22,7 +22,7 @@ export default async function AdminBookingsPage({
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Bookings</h1>
-          <p className="text-sm text-gray-500">Manage all booking requests</p>
+          <p className="text-sm text-gray-500">Manage all slot booking requests</p>
         </div>
         <BookingFilters />
         <div className="rounded-xl border bg-white p-8 text-center text-gray-500 shadow-sm">
@@ -35,8 +35,9 @@ export default async function AdminBookingsPage({
   const params = await searchParams;
   const search = typeof params.search === "string" ? params.search : "";
   const status = typeof params.status === "string" ? params.status : "";
-  const danceStyle = typeof params.danceStyle === "string" ? params.danceStyle : "";
-  const occasionType = typeof params.occasionType === "string" ? params.occasionType : "";
+  const lessonMode = typeof params.lessonMode === "string" ? params.lessonMode : "";
+  const songIndustry =
+    typeof params.songIndustry === "string" ? params.songIndustry : "";
   const page = typeof params.page === "string" ? parseInt(params.page) : 1;
   const limit = 20;
   const skip = (page - 1) * limit;
@@ -49,11 +50,13 @@ export default async function AdminBookingsPage({
       { name: { contains: search } },
       { email: { contains: search } },
       { phone: { contains: search } },
+      { songPreference: { contains: search } },
+      { songAlbum: { contains: search } },
     ];
   }
   if (status) where.status = status;
-  if (danceStyle) where.danceStyle = danceStyle;
-  if (occasionType) where.occasionType = occasionType;
+  if (lessonMode) where.lessonMode = lessonMode;
+  if (songIndustry) where.songIndustry = songIndustry;
 
   const [bookings, total] = await Promise.all([
     db.booking.findMany({
@@ -67,7 +70,7 @@ export default async function AdminBookingsPage({
 
   const serializedBookings = bookings.map((b) => ({
     ...b,
-    performanceDate: b.performanceDate.toISOString(),
+    slotDate: b.slotDate.toISOString(),
     createdAt: b.createdAt.toISOString(),
     updatedAt: b.updatedAt.toISOString(),
   }));
@@ -77,7 +80,7 @@ export default async function AdminBookingsPage({
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Bookings</h1>
         <p className="text-sm text-gray-500">
-          Manage all booking requests ({total} total)
+          Manage all slot booking requests ({total} total)
         </p>
       </div>
 
@@ -91,8 +94,8 @@ export default async function AdminBookingsPage({
               href={`/admin/bookings?${new URLSearchParams({
                 ...(search && { search }),
                 ...(status && { status }),
-                ...(danceStyle && { danceStyle }),
-                ...(occasionType && { occasionType }),
+                ...(lessonMode && { lessonMode }),
+                ...(songIndustry && { songIndustry }),
                 page: String(page - 1),
               }).toString()}`}
               className="rounded-lg border bg-white px-3 py-2 text-sm hover:bg-gray-50"
@@ -108,8 +111,8 @@ export default async function AdminBookingsPage({
               href={`/admin/bookings?${new URLSearchParams({
                 ...(search && { search }),
                 ...(status && { status }),
-                ...(danceStyle && { danceStyle }),
-                ...(occasionType && { occasionType }),
+                ...(lessonMode && { lessonMode }),
+                ...(songIndustry && { songIndustry }),
                 page: String(page + 1),
               }).toString()}`}
               className="rounded-lg border bg-white px-3 py-2 text-sm hover:bg-gray-50"

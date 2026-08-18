@@ -5,8 +5,8 @@ import { Phone, MapPin, User } from "lucide-react";
 
 const footerNav = [
   { label: "Home", href: "#hero" },
+  { label: "How It Works", href: "#how-it-works" },
   { label: "About", href: "#about" },
-  { label: "Performances", href: "#performances" },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -32,8 +32,8 @@ export function Footer() {
               {siteConfig.brandName}
             </h3>
             <p className="text-sm leading-relaxed">
-              Beautiful dance performances that make your special occasions
-              unforgettable.
+              Beautiful dance classes on Zoom — and home sessions after we
+              connect online first.
             </p>
           </div>
 

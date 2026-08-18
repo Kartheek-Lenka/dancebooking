@@ -27,13 +27,13 @@ export function DanceStory() {
             </svg>
           </div>
           <h2 className="text-3xl font-bold text-warm-dark sm:text-4xl">
-            Let Dance Become Part of Your Story
+            Bring a Song to Life
           </h2>
           <p className="mt-6 text-lg text-warm-text/60 leading-relaxed">
-            Every celebration has a story. Dance adds emotion, energy and
-            unforgettable moments to that story. From graceful classical
-            performances to energetic group acts, our performances are designed
-            to make your occasion truly special.
+            Tell us the song you want to learn. We&apos;ll meet you on Zoom,
+            understand where you are, and teach you step by step. Prefer
+            in-person? We still start with that Zoom call, then come to you for
+            home classes once the plan is clear.
           </p>
         </motion.div>
       </div>

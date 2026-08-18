@@ -45,9 +45,9 @@ export function Hero() {
             className="text-3xl leading-[1.1] font-normal tracking-[0.02em] text-white sm:text-4xl lg:text-5xl xl:text-6xl"
             style={{ fontFamily: "'Casko Luxury Demo', Georgia, serif" }}
           >
-            Let Dance Tell
+            Learn Dance,
             <br />
-            Your Story
+            Your Way
           </motion.h1>
 
           <motion.p
@@ -59,7 +59,8 @@ export function Hero() {
               fontFamily: "system-ui, -apple-system, sans-serif",
             }}
           >
-            Beautiful performances for moments worth remembering.
+            Book a slot for a personal Zoom class — or home sessions after we
+            connect online first.
           </motion.p>
         </div>
       </div>

@@ -37,38 +37,37 @@ export function AboutSection() {
             className="space-y-6"
           >
             <h2 className="text-3xl font-bold text-warm-dark sm:text-4xl">
-              About Our Performances
+              About the classes
             </h2>
             <p className="text-lg text-warm-text/70 leading-relaxed">
-              We believe dance is more than a performance. It is an emotion, a
-              celebration and a memory that stays with you. Every movement tells
-              a story, every rhythm creates a moment, and every performance
-              becomes a treasured memory.
+              Dance is personal. Classes are one-to-one, built around the song
+              you choose and the pace that feels right for you — whether you
+              are starting fresh or polishing a piece you already love.
             </p>
             <p className="text-warm-text/60 leading-relaxed">
-              With years of experience in classical and contemporary dance
-              forms, we craft performances that are tailored to the unique
-              spirit of your celebration.
+              Online sessions happen on Zoom. If you&apos;d rather learn at
+              home, we still begin with a Zoom call to discuss details, then
+              start home service from there.
             </p>
 
             <div className="grid grid-cols-3 gap-6 pt-6">
               <div>
                 <p className="text-2xl font-bold text-maroon">
-                  {siteConfig.statistics.performances}
+                  {siteConfig.statistics.bookingFee}
                 </p>
-                <p className="text-sm text-warm-text/60">Performances</p>
+                <p className="text-sm text-warm-text/60">Booking fee</p>
               </div>
               <div>
                 <p className="text-2xl font-bold text-maroon">
-                  {siteConfig.statistics.events}
+                  {siteConfig.statistics.format}
                 </p>
-                <p className="text-sm text-warm-text/60">Events</p>
+                <p className="text-sm text-warm-text/60">Personal class</p>
               </div>
               <div>
                 <p className="text-2xl font-bold text-maroon">
-                  {siteConfig.statistics.danceStyles}
+                  {siteConfig.statistics.modes}
                 </p>
-                <p className="text-sm text-warm-text/60">Dance Styles</p>
+                <p className="text-sm text-warm-text/60">Ways to learn</p>
               </div>
             </div>
           </motion.div>

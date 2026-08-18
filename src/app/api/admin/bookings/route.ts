@@ -18,8 +18,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search") || "";
   const status = searchParams.get("status") || "";
-  const danceStyle = searchParams.get("danceStyle") || "";
-  const occasionType = searchParams.get("occasionType") || "";
+  const lessonMode = searchParams.get("lessonMode") || "";
   const page = parseInt(searchParams.get("page") || "1");
   const limit = 20;
   const skip = (page - 1) * limit;
@@ -32,12 +31,14 @@ export async function GET(request: NextRequest) {
       { name: { contains: search } },
       { email: { contains: search } },
       { phone: { contains: search } },
+      { songPreference: { contains: search } },
     ];
   }
 
   if (status) where.status = status;
-  if (danceStyle) where.danceStyle = danceStyle;
-  if (occasionType) where.occasionType = occasionType;
+  if (lessonMode) where.lessonMode = lessonMode;
+  const songIndustry = searchParams.get("songIndustry") || "";
+  if (songIndustry) where.songIndustry = songIndustry;
 
   const [bookings, total] = await Promise.all([
     db.booking.findMany({

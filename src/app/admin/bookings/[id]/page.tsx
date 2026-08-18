@@ -3,12 +3,17 @@ import { getAdminSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { BookingStatusBadge } from "@/components/admin/booking-status-badge";
 import { BookingActions } from "./booking-actions";
+import { formatSongIndustry } from "@/lib/songs";
 import { format } from "date-fns";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Booking Details",
 };
+
+function formatLessonMode(mode: string) {
+  return mode === "HOME_SERVICE" ? "Home service" : "Online Zoom class";
+}
 
 export default async function BookingDetailPage({
   params,
@@ -41,9 +46,7 @@ export default async function BookingDetailPage({
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Booking Details
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">Booking Details</h1>
           <p className="text-sm text-gray-500">
             Created {format(booking.createdAt, "MMM d, yyyy 'at' h:mm a")}
           </p>
@@ -74,41 +77,70 @@ export default async function BookingDetailPage({
 
         <div className="rounded-xl border bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">
-            Event
+            Slot
           </h2>
           <dl className="space-y-3">
             <div>
-              <dt className="text-xs text-gray-500">Occasion</dt>
+              <dt className="text-xs text-gray-500">Preferred date</dt>
               <dd className="font-medium text-gray-900">
-                {booking.occasionType}
+                {format(booking.slotDate, "MMMM d, yyyy")}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-gray-500">Performance Date</dt>
+              <dt className="text-xs text-gray-500">Preferred time</dt>
+              <dd className="font-medium text-gray-900">{booking.preferredTime}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-gray-500">Lesson mode</dt>
               <dd className="font-medium text-gray-900">
-                {format(booking.performanceDate, "MMMM d, yyyy")}
+                {formatLessonMode(booking.lessonMode)}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-gray-500">Dance Style</dt>
-              <dd className="font-medium text-gray-900">
-                {booking.danceStyle}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs text-gray-500">Performance Type</dt>
-              <dd className="font-medium text-gray-900">
-                {booking.performanceType}
-              </dd>
+              <dt className="text-xs text-gray-500">Booking fee</dt>
+              <dd className="font-medium text-gray-900">₹{booking.bookingFee}</dd>
             </div>
           </dl>
         </div>
       </div>
 
+      <div className="rounded-xl border bg-white p-6 shadow-sm">
+        <h2 className="mb-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">
+          Song
+        </h2>
+        <dl className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <dt className="text-xs text-gray-500">Industry</dt>
+            <dd className="font-medium text-gray-900">
+              {formatSongIndustry(booking.songIndustry)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-gray-500">Song</dt>
+            <dd className="font-medium text-gray-900">{booking.songPreference}</dd>
+          </div>
+          {booking.songAlbum && (
+            <div className="sm:col-span-2">
+              <dt className="text-xs text-gray-500">Album / movie</dt>
+              <dd className="font-medium text-gray-900">{booking.songAlbum}</dd>
+            </div>
+          )}
+        </dl>
+      </div>
+
+      {booking.address && (
+        <div className="rounded-xl border bg-white p-6 shadow-sm">
+          <h2 className="mb-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">
+            Home visit address
+          </h2>
+          <p className="text-gray-700 whitespace-pre-wrap">{booking.address}</p>
+        </div>
+      )}
+
       {booking.message && (
         <div className="rounded-xl border bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">
-            Additional Information
+            Additional notes
           </h2>
           <p className="text-gray-700 whitespace-pre-wrap">{booking.message}</p>
         </div>

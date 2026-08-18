@@ -16,11 +16,10 @@ export function CTA() {
           className="mx-auto max-w-3xl text-center"
         >
           <h2 className="text-3xl font-bold text-white sm:text-4xl">
-            Have a Celebration Coming Up?
+            Ready to start learning?
           </h2>
           <p className="mt-4 text-lg text-white/70">
-            Let&apos;s make it unforgettable with a performance created for
-            your special moment.
+            Book a slot, share your song, and we&apos;ll connect on Zoom.
           </p>
           <div className="mt-8">
             <Link href="/book">
@@ -29,7 +28,7 @@ export function CTA() {
                 variant="gold"
                 className="text-base"
               >
-                Book a Performance
+                Book a Slot
               </Button>
             </Link>
           </div>

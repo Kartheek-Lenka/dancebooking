@@ -112,7 +112,7 @@ export function Navbar() {
           <div className="hidden lg:block">
             <Link href="/book">
               <Button size="sm" className="bg-gold text-white hover:bg-gold-dark border-none">
-                Book a Performance
+                Book a Slot
               </Button>
             </Link>
           </div>
@@ -175,7 +175,7 @@ export function Navbar() {
                 <div className="border-t border-white/10 px-6 py-5">
                   <Link href="/book" onClick={closeMobile}>
                     <Button className="w-full bg-gold text-white hover:bg-gold-dark border-none">
-                      Book a Performance
+                      Book a Slot
                     </Button>
                   </Link>
                 </div>

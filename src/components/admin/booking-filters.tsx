@@ -25,7 +25,7 @@ export function BookingFilters() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
         <input
           type="text"
-          placeholder="Search by name, email, or phone..."
+          placeholder="Search by name, email, phone, or song..."
           defaultValue={searchParams.get("search") || ""}
           onChange={(e) => updateParam("search", e.target.value)}
           className="w-full rounded-lg border border-gray-200 bg-white pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50"
@@ -43,26 +43,26 @@ export function BookingFilters() {
         <option value="CANCELLED">Cancelled</option>
       </select>
       <select
-        defaultValue={searchParams.get("danceStyle") || ""}
-        onChange={(e) => updateParam("danceStyle", e.target.value)}
+        defaultValue={searchParams.get("lessonMode") || ""}
+        onChange={(e) => updateParam("lessonMode", e.target.value)}
         className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50"
       >
-        <option value="">All Dance Styles</option>
-        {siteConfig.danceStyles.map((style) => (
-          <option key={style} value={style}>
-            {style}
+        <option value="">All Modes</option>
+        {siteConfig.lessonModes.map((mode) => (
+          <option key={mode.value} value={mode.value}>
+            {mode.label}
           </option>
         ))}
       </select>
       <select
-        defaultValue={searchParams.get("occasionType") || ""}
-        onChange={(e) => updateParam("occasionType", e.target.value)}
+        defaultValue={searchParams.get("songIndustry") || ""}
+        onChange={(e) => updateParam("songIndustry", e.target.value)}
         className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50"
       >
-        <option value="">All Occasions</option>
-        {siteConfig.occasionTypes.map((occ) => (
-          <option key={occ} value={occ}>
-            {occ}
+        <option value="">All Industries</option>
+        {siteConfig.songIndustries.map((industry) => (
+          <option key={industry.value} value={industry.value}>
+            {industry.label}
           </option>
         ))}
       </select>

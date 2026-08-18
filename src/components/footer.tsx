@@ -1,4 +1,5 @@
-import Link from "next/link";
+"use client";
+
 import { siteConfig } from "@/config/site";
 import { Phone, MapPin, User } from "lucide-react";
 
@@ -8,6 +9,14 @@ const footerNav = [
   { label: "Performances", href: "#performances" },
   { label: "Contact", href: "#contact" },
 ];
+
+function scrollToHash(hash: string) {
+  const id = hash.replace("#", "");
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth" });
+  }
+}
 
 export function Footer() {
   return (
@@ -36,12 +45,16 @@ export function Footer() {
             <ul className="space-y-2">
               {footerNav.map((item) => (
                 <li key={item.label}>
-                  <Link
+                  <a
                     href={item.href}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToHash(item.href);
+                    }}
                     className="text-sm hover:text-gold transition-colors"
                   >
                     {item.label}
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>

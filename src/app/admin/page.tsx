@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { DashboardStats } from "@/components/admin/dashboard-stats";
-import { BookingStatusBadge } from "@/components/admin/booking-status-badge";
+import { BookingStatusBadge, PaymentStatusBadge } from "@/components/admin/booking-status-badge";
 import { formatSongIndustry } from "@/lib/songs";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -31,13 +31,14 @@ export default async function AdminDashboardPage() {
     );
   }
 
-  const [total, pending, confirmed, completed, cancelled, recentBookings] =
+  const [total, pending, confirmed, completed, cancelled, paidCount, recentBookings] =
     await Promise.all([
       db.booking.count(),
       db.booking.count({ where: { status: "PENDING" } }),
       db.booking.count({ where: { status: "CONFIRMED" } }),
       db.booking.count({ where: { status: "COMPLETED" } }),
       db.booking.count({ where: { status: "CANCELLED" } }),
+      db.booking.count({ where: { paymentStatus: "PAID" } }),
       db.booking.findMany({
         orderBy: { createdAt: "desc" },
         take: 5,
@@ -52,7 +53,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       <DashboardStats
-        stats={{ total, pending, confirmed, completed, cancelled }}
+        stats={{ total, pending, confirmed, completed, cancelled, paidCount }}
       />
 
       <div className="rounded-xl border bg-white shadow-sm">
@@ -87,11 +88,12 @@ export default async function AdminDashboardPage() {
                     {booking.songPreference}
                   </p>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                   <span className="hidden text-sm text-gray-500 sm:block">
                     {format(new Date(booking.slotDate), "MMM d, yyyy")}
                   </span>
                   <BookingStatusBadge status={booking.status} />
+                  <PaymentStatusBadge status={booking.paymentStatus} />
                   <Link
                     href={`/admin/bookings/${booking.id}`}
                     className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200 transition-colors"

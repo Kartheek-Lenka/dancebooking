@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookingStatusBadge } from "./booking-status-badge";
+import { BookingStatusBadge, PaymentStatusBadge } from "./booking-status-badge";
 import { Eye } from "lucide-react";
 import { format } from "date-fns";
 import { formatSongIndustry } from "@/lib/songs";
@@ -17,6 +17,8 @@ interface Booking {
   songAlbum?: string | null;
   bookingFee: number;
   status: string;
+  paymentStatus: string;
+  paymentMethod?: string | null;
   createdAt: string;
 }
 
@@ -45,6 +47,7 @@ export function BookingTable({ bookings }: { bookings: Booking[] }) {
               <th className="px-4 py-3 text-left font-medium text-gray-500 hidden lg:table-cell">Slot</th>
               <th className="px-4 py-3 text-left font-medium text-gray-500 hidden lg:table-cell">Mode</th>
               <th className="px-4 py-3 text-left font-medium text-gray-500">Status</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-500 hidden xl:table-cell">Payment</th>
               <th className="px-4 py-3 text-left font-medium text-gray-500 hidden xl:table-cell">Created</th>
               <th className="px-4 py-3 text-right font-medium text-gray-500">Actions</th>
             </tr>
@@ -76,6 +79,9 @@ export function BookingTable({ bookings }: { bookings: Booking[] }) {
                 </td>
                 <td className="px-4 py-3">
                   <BookingStatusBadge status={booking.status} />
+                </td>
+                <td className="px-4 py-3 hidden xl:table-cell">
+                  <PaymentStatusBadge status={booking.paymentStatus} />
                 </td>
                 <td className="px-4 py-3 text-gray-500 text-xs hidden xl:table-cell">
                   {format(new Date(booking.createdAt), "MMM d, yyyy")}

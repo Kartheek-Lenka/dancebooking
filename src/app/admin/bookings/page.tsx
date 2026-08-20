@@ -73,6 +73,7 @@ export default async function AdminBookingsPage({
     slotDate: b.slotDate.toISOString(),
     createdAt: b.createdAt.toISOString(),
     updatedAt: b.updatedAt.toISOString(),
+    paidAt: b.paidAt?.toISOString() ?? null,
   }));
 
   return (

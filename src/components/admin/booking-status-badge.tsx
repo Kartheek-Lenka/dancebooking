@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 
 export type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+export type PaymentStatus = "PENDING" | "PAID";
 
 const statusConfig: Record<BookingStatus, { label: string; className: string }> = {
   PENDING: {
@@ -21,8 +22,33 @@ const statusConfig: Record<BookingStatus, { label: string; className: string }> 
   },
 };
 
+const paymentConfig: Record<PaymentStatus, { label: string; className: string }> = {
+  PENDING: {
+    label: "Payment Pending",
+    className: "bg-amber-100 text-amber-800 border border-amber-200",
+  },
+  PAID: {
+    label: "Paid",
+    className: "bg-emerald-100 text-emerald-800 border border-emerald-200",
+  },
+};
+
 export function BookingStatusBadge({ status }: { status: BookingStatus | string }) {
   const config = statusConfig[status as BookingStatus] || statusConfig.PENDING;
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+        config.className
+      )}
+    >
+      {config.label}
+    </span>
+  );
+}
+
+export function PaymentStatusBadge({ status }: { status: PaymentStatus | string }) {
+  const config = paymentConfig[status as PaymentStatus] || paymentConfig.PENDING;
   return (
     <span
       className={cn(

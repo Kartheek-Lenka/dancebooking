@@ -1,7 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import { getAdminSession } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { BookingStatusBadge } from "@/components/admin/booking-status-badge";
+import { BookingStatusBadge, PaymentStatusBadge } from "@/components/admin/booking-status-badge";
 import { BookingActions } from "./booking-actions";
 import { formatSongIndustry } from "@/lib/songs";
 import { format } from "date-fns";
@@ -28,17 +28,14 @@ export default async function BookingDetailPage({
       <div className="mx-auto max-w-3xl space-y-6">
         <h1 className="text-2xl font-bold text-gray-900">Booking Details</h1>
         <div className="rounded-xl border bg-white p-8 text-center text-gray-500 shadow-sm">
-          Database not configured. Booking details will appear here once the database is set up.
+          Database not configured.
         </div>
       </div>
     );
   }
 
   const { id } = await params;
-
-  const booking = await db.booking.findUnique({
-    where: { id },
-  });
+  const booking = await db.booking.findUnique({ where: { id } });
 
   if (!booking) notFound();
 
@@ -51,7 +48,10 @@ export default async function BookingDetailPage({
             Created {format(booking.createdAt, "MMM d, yyyy 'at' h:mm a")}
           </p>
         </div>
-        <BookingStatusBadge status={booking.status} />
+        <div className="flex flex-col items-end gap-2">
+          <BookingStatusBadge status={booking.status} />
+          <PaymentStatusBadge status={booking.paymentStatus} />
+        </div>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
@@ -123,6 +123,32 @@ export default async function BookingDetailPage({
             <div className="sm:col-span-2">
               <dt className="text-xs text-gray-500">Album / movie</dt>
               <dd className="font-medium text-gray-900">{booking.songAlbum}</dd>
+            </div>
+          )}
+        </dl>
+      </div>
+
+      <div className="rounded-xl border bg-white p-6 shadow-sm">
+        <h2 className="mb-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">
+          Payment
+        </h2>
+        <dl className="grid gap-4 sm:grid-cols-3">
+          <div>
+            <dt className="text-xs text-gray-500">Status</dt>
+            <dd className="mt-1"><PaymentStatusBadge status={booking.paymentStatus} /></dd>
+          </div>
+          <div>
+            <dt className="text-xs text-gray-500">Method</dt>
+            <dd className="mt-1 font-medium text-gray-900">
+              {booking.paymentMethod || "—"}
+            </dd>
+          </div>
+          {booking.paidAt && (
+            <div>
+              <dt className="text-xs text-gray-500">Paid at</dt>
+              <dd className="mt-1 font-medium text-gray-900">
+                {format(booking.paidAt, "MMM d, yyyy 'at' h:mm a")}
+              </dd>
             </div>
           )}
         </dl>

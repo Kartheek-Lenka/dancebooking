@@ -1,5 +1,10 @@
 export const BOOKING_FEE_INR = 500;
 
+export const paymentConfig = {
+  phonepeNumber: "+918523862893",
+  phonepeName: "Shiyoni Sagar Sisinty",
+};
+
 export const siteConfig = {
   brandName: "NrityaRasa",
   tagline: "Beautiful Dance Performances for Every Occasion",

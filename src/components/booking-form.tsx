@@ -9,13 +9,18 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Video, Home } from "lucide-react";
+import { Video, Home, ArrowLeft } from "lucide-react";
 import { SongPicker } from "@/components/song-picker";
+import { PaymentStep } from "@/components/payment-step";
+import { BookingSuccess } from "@/components/booking-success";
 import type { SongIndustry } from "@/lib/songs";
 
+type Step = "form" | "payment" | "success";
+
 export function BookingForm() {
+  const [step, setStep] = useState<Step>("form");
+  const [bookingId, setBookingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
@@ -64,8 +69,8 @@ export function BookingForm() {
         return;
       }
 
-      setIsSuccess(true);
-      reset();
+      setBookingId(result.bookingId);
+      setStep("payment");
     } catch {
       setServerError(
         "Unable to connect. Please check your internet connection and try again."
@@ -75,24 +80,27 @@ export function BookingForm() {
     }
   }
 
-  if (isSuccess) {
+  if (step === "success") {
+    return <BookingSuccess />;
+  }
+
+  if (step === "payment" && bookingId) {
     return (
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center">
-        <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500" />
-        <h3 className="mt-4 text-xl font-semibold text-warm-dark">
-          Slot request received
-        </h3>
-        <p className="mt-2 text-warm-text/60">
-          Thank you! We&apos;ll connect with you on Zoom to confirm your slot
-          and the ₹{BOOKING_FEE_INR} booking fee.
-        </p>
-        <Button
-          variant="outline"
-          className="mt-6"
-          onClick={() => setIsSuccess(false)}
+      <div className="space-y-4">
+        <button
+          onClick={() => setStep("form")}
+          className="flex items-center gap-2 text-sm text-warm-text/60 hover:text-warm-dark transition-colors"
         >
-          Book another slot
-        </Button>
+          <ArrowLeft className="h-4 w-4" />
+          Back to form
+        </button>
+        <PaymentStep
+          bookingId={bookingId}
+          onPaymentConfirmed={() => {
+            reset();
+            setStep("success");
+          }}
+        />
       </div>
     );
   }
@@ -228,7 +236,7 @@ export function BookingForm() {
         <div>
           <p className="text-sm font-medium text-warm-dark">Booking fee</p>
           <p className="text-xs text-warm-text/60">
-            Confirmed when we connect on Zoom
+            Pay via PhonePe on the next step
           </p>
         </div>
         <p className="text-lg font-semibold text-maroon">₹{BOOKING_FEE_INR}</p>
@@ -241,7 +249,7 @@ export function BookingForm() {
         disabled={isSubmitting}
         className="w-full"
       >
-        {isSubmitting ? "Submitting..." : "Book a Slot"}
+        {isSubmitting ? "Submitting..." : "Continue to Payment"}
       </Button>
     </form>
   );

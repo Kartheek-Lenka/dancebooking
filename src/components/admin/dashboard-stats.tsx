@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Calendar, Clock, CheckCircle2, XCircle, TrendingUp } from "lucide-react";
+import { Calendar, Clock, CheckCircle2, XCircle, TrendingUp, IndianRupee } from "lucide-react";
 
 interface Stats {
   total: number;
@@ -7,6 +7,7 @@ interface Stats {
   confirmed: number;
   completed: number;
   cancelled: number;
+  paidCount?: number;
 }
 
 interface StatCardProps {
@@ -34,7 +35,7 @@ function StatCard({ label, value, icon, className }: StatCardProps) {
 
 export function DashboardStats({ stats }: { stats: Stats }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
       <StatCard
         label="Total Bookings"
         value={stats.total}
@@ -59,6 +60,11 @@ export function DashboardStats({ stats }: { stats: Stats }) {
         label="Cancelled"
         value={stats.cancelled}
         icon={<XCircle className="h-5 w-5 text-red-600" />}
+      />
+      <StatCard
+        label="Paid"
+        value={stats.paidCount ?? 0}
+        icon={<IndianRupee className="h-5 w-5 text-gold" />}
       />
     </div>
   );

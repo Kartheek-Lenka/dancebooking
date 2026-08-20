@@ -177,7 +177,7 @@ export function PaymentStep({ bookingId, onPaymentConfirmed }: PaymentStepProps)
               Confirming...
             </>
           ) : (
-            "I&apos;ve Paid — Confirm Booking"
+            "I've Paid — Confirm Booking"
           )}
         </Button>
 

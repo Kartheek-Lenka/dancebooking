@@ -43,11 +43,20 @@ export async function GET(request: NextRequest) {
     url.searchParams.set("query", query);
     url.searchParams.set("limit", "20");
 
-    const response = await fetch(url.toString(), {
-      next: { revalidate: 3600 },
-    });
+    let response: Response | null = null;
+    const retryDelaysMs = [300, 800];
+    for (let attempt = 0; attempt <= retryDelaysMs.length; attempt++) {
+      response = await fetch(url.toString(), {
+        next: { revalidate: 3600 },
+      });
 
-    if (!response.ok) {
+      if (response.ok || response.status !== 429) break;
+      if (attempt < retryDelaysMs.length) {
+        await new Promise((resolve) => setTimeout(resolve, retryDelaysMs[attempt]));
+      }
+    }
+
+    if (!response || !response.ok) {
       return NextResponse.json(
         { error: "Song search is temporarily unavailable" },
         { status: 502 }

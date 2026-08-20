@@ -38,7 +38,7 @@ export default async function AdminBookingsPage({
   const lessonMode = typeof params.lessonMode === "string" ? params.lessonMode : "";
   const songIndustry =
     typeof params.songIndustry === "string" ? params.songIndustry : "";
-  const page = typeof params.page === "string" ? parseInt(params.page) : 1;
+  const page = typeof params.page === "string" ? Math.max(1, parseInt(params.page) || 1) : 1;
   const limit = 20;
   const skip = (page - 1) * limit;
 

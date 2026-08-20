@@ -16,7 +16,13 @@ export async function middleware(request: NextRequest) {
       const response = NextResponse.redirect(
         new URL("/admin/login", request.url)
       );
-      response.cookies.set("admin-token", "", { maxAge: 0, path: "/" });
+      response.cookies.set("admin-token", "", {
+        maxAge: 0,
+        path: "/",
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      });
       return response;
     }
   }
@@ -25,5 +31,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/admin"],
 };

@@ -5,19 +5,18 @@ import {
   type SongSearchResult,
 } from "@/lib/songs";
 
-const SAAVN_API = "https://saavn.sumit.co";
-
-interface SaavnArtist {
-  name: string;
-}
+const SAAVN_API = "https://www.jiosaavn.com/api.php";
 
 interface SaavnSongResult {
   id: string;
-  name: string;
-  language: string;
-  album?: { name: string };
-  artists?: { primary?: SaavnArtist[] };
-  image?: { quality: string; url: string }[];
+  title: string;
+  album?: string;
+  image?: string;
+  more_info?: {
+    language?: string;
+    primary_artists?: string;
+    singers?: string;
+  };
 }
 
 export async function GET(request: NextRequest) {
@@ -39,7 +38,12 @@ export async function GET(request: NextRequest) {
   const targetLanguage = SONG_INDUSTRY_CONFIG[industry].language;
 
   try {
-    const url = new URL(`${SAAVN_API}/api/search/songs`);
+    const url = new URL(SAAVN_API);
+    url.searchParams.set("__call", "autocomplete.get");
+    url.searchParams.set("_format", "json");
+    url.searchParams.set("_marker", "0");
+    url.searchParams.set("cc", "in");
+    url.searchParams.set("includeMetaTags", "1");
     url.searchParams.set("query", query);
     url.searchParams.set("limit", "20");
 
@@ -52,7 +56,9 @@ export async function GET(request: NextRequest) {
 
       if (response.ok || response.status !== 429) break;
       if (attempt < retryDelaysMs.length) {
-        await new Promise((resolve) => setTimeout(resolve, retryDelaysMs[attempt]));
+        await new Promise((resolve) =>
+          setTimeout(resolve, retryDelaysMs[attempt])
+        );
       }
     }
 
@@ -64,21 +70,19 @@ export async function GET(request: NextRequest) {
     }
 
     const payload = (await response.json()) as {
-      data?: { results?: SaavnSongResult[] };
+      songs?: { data?: SaavnSongResult[] };
     };
 
-    const songs: SongSearchResult[] = (payload.data?.results ?? [])
-      .filter((song) => song.language === targetLanguage)
+    const songs: SongSearchResult[] = (payload.songs?.data ?? [])
+      .filter((song) => song.more_info?.language === targetLanguage)
       .slice(0, 12)
       .map((song) => ({
         id: song.id,
-        name: song.name,
-        album: song.album?.name,
-        artists: song.artists?.primary?.map((a) => a.name).join(", "),
-        image:
-          song.image?.find((img) => img.quality === "150x150")?.url ??
-          song.image?.[0]?.url,
-        language: song.language,
+        name: song.title,
+        album: song.album,
+        artists: song.more_info?.primary_artists,
+        image: song.image,
+        language: song.more_info?.language ?? "",
       }));
 
     return NextResponse.json({ songs });

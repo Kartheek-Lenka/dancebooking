@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { db, withDbTimeout } from "@/lib/db";
 import { DashboardStats } from "@/components/admin/dashboard-stats";
 import { BookingStatusBadge, PaymentStatusBadge } from "@/components/admin/booking-status-badge";
 import { formatSongIndustry } from "@/lib/songs";
@@ -31,19 +31,40 @@ export default async function AdminDashboardPage() {
     );
   }
 
-  const [total, pending, confirmed, completed, cancelled, paidCount, recentBookings] =
-    await Promise.all([
-      db.booking.count(),
-      db.booking.count({ where: { status: "PENDING" } }),
-      db.booking.count({ where: { status: "CONFIRMED" } }),
-      db.booking.count({ where: { status: "COMPLETED" } }),
-      db.booking.count({ where: { status: "CANCELLED" } }),
-      db.booking.count({ where: { paymentStatus: "PAID" } }),
-      db.booking.findMany({
-        orderBy: { createdAt: "desc" },
-        take: 5,
-      }),
-    ]);
+  const dbUnavailable = (
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-sm text-gray-500">Overview of your bookings</p>
+      </div>
+      <DashboardStats stats={{ total: 0, pending: 0, confirmed: 0, completed: 0, cancelled: 0 }} />
+      <div className="rounded-xl border bg-white p-8 text-center text-gray-500 shadow-sm">
+        Unable to connect to the database. Please check the database configuration and try again later.
+      </div>
+    </div>
+  );
+
+  const data = await withDbTimeout(
+    () =>
+      Promise.all([
+        db!.booking.count(),
+        db!.booking.count({ where: { status: "PENDING" } }),
+        db!.booking.count({ where: { status: "CONFIRMED" } }),
+        db!.booking.count({ where: { status: "COMPLETED" } }),
+        db!.booking.count({ where: { status: "CANCELLED" } }),
+        db!.booking.count({ where: { paymentStatus: "PAID" } }),
+        db!.booking.findMany({
+          orderBy: { createdAt: "desc" },
+          take: 5,
+        }),
+      ]),
+    null,
+    10000
+  );
+
+  if (!data) return dbUnavailable;
+
+  const [total, pending, confirmed, completed, cancelled, paidCount, recentBookings] = data;
 
   return (
     <div className="space-y-8">

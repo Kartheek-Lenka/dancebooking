@@ -27,7 +27,7 @@ export function Footer() {
           <div className="space-y-4">
             <h3
               className="text-xl font-bold text-white tracking-wide"
-              style={{ fontFamily: "'Casko Luxury Demo', Georgia, serif" }}
+              style={{ fontFamily: "'Righteous', Georgia, serif" }}
             >
               {siteConfig.brandName}
             </h3>

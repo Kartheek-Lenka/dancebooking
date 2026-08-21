@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { db, withDbTimeout } from "@/lib/db";
 import { BookingTable } from "@/components/admin/booking-table";
 import { BookingFilters } from "@/components/admin/booking-filters";
 import type { Metadata } from "next";
@@ -58,15 +58,37 @@ export default async function AdminBookingsPage({
   if (lessonMode) where.lessonMode = lessonMode;
   if (songIndustry) where.songIndustry = songIndustry;
 
-  const [bookings, total] = await Promise.all([
-    db.booking.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      skip,
-      take: limit,
-    }),
-    db.booking.count({ where }),
-  ]);
+  const data = await withDbTimeout(
+    () =>
+      Promise.all([
+        db!.booking.findMany({
+          where,
+          orderBy: { createdAt: "desc" },
+          skip,
+          take: limit,
+        }),
+        db!.booking.count({ where }),
+      ]),
+    null,
+    10000
+  );
+
+  if (!data) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Bookings</h1>
+          <p className="text-sm text-gray-500">Manage all slot booking requests</p>
+        </div>
+        <BookingFilters />
+        <div className="rounded-xl border bg-white p-8 text-center text-gray-500 shadow-sm">
+          Unable to connect to the database. Please try again later.
+        </div>
+      </div>
+    );
+  }
+
+  const [bookings, total] = data;
 
   const serializedBookings = bookings.map((b) => ({
     ...b,

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { db, withDbTimeout } from "@/lib/db";
 
 export async function GET(
   _request: NextRequest,
@@ -17,11 +17,13 @@ export async function GET(
 
   const { id } = await params;
 
-  const booking = await db.booking.findUnique({
-    where: { id },
-  });
+  const booking = await withDbTimeout(
+    () => db!.booking.findUnique({ where: { id } }),
+    null,
+    10000
+  );
 
-  if (!booking) {
+  if (booking === null) {
     return NextResponse.json({ error: "Booking not found" }, { status: 404 });
   }
 
@@ -54,15 +56,24 @@ export async function PUT(
   }
 
   try {
-    const existing = await db.booking.findUnique({ where: { id } });
-    if (!existing) {
+    const existing = await withDbTimeout(
+      () => db!.booking.findUnique({ where: { id } }),
+      null,
+      10000
+    );
+    if (existing === null) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
-    const booking = await db.booking.update({
-      where: { id },
-      data: { status: body.status },
-    });
+    const booking = await withDbTimeout(
+      () => db!.booking.update({ where: { id }, data: { status: body.status } }),
+      null,
+      10000
+    );
+
+    if (!booking) {
+      return NextResponse.json({ error: "Database timeout" }, { status: 503 });
+    }
 
     return NextResponse.json(booking);
   } catch {
@@ -89,14 +100,20 @@ export async function DELETE(
   const { id } = await params;
 
   try {
-    const existing = await db.booking.findUnique({ where: { id } });
-    if (!existing) {
+    const existing = await withDbTimeout(
+      () => db!.booking.findUnique({ where: { id } }),
+      null,
+      10000
+    );
+    if (existing === null) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
-    await db.booking.delete({
-      where: { id },
-    });
+    await withDbTimeout(
+      () => db!.booking.delete({ where: { id } }),
+      null,
+      10000
+    );
 
     return NextResponse.json({ success: true });
   } catch {

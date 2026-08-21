@@ -83,8 +83,8 @@ export function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-warm-dark/70 backdrop-blur-md shadow-sm"
-          : "bg-transparent"
+          ? "bg-warm-dark shadow-md"
+          : "bg-warm-dark/90"
       }`}
     >
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -92,7 +92,7 @@ export function Navbar() {
           <Link
             href="/"
             className="text-2xl font-bold text-white tracking-wide"
-            style={{ fontFamily: "'Casko Luxury Demo', Georgia, serif" }}
+            style={{ fontFamily: "'Righteous', Georgia, serif" }}
           >
             {siteConfig.brandName}
           </Link>
@@ -102,7 +102,7 @@ export function Navbar() {
               <NavLink
                 key={item.label}
                 href={item.href}
-                className="text-sm font-medium text-white/80 hover:text-gold transition-colors"
+                className="text-sm font-medium text-white/90 hover:text-gold transition-colors"
               >
                 {item.label}
               </NavLink>
@@ -148,7 +148,7 @@ export function Navbar() {
                 <div className="flex items-center justify-between px-6 py-5">
                   <span
                     className="text-xl font-bold text-white tracking-wide"
-                    style={{ fontFamily: "'Casko Luxury Demo', Georgia, serif" }}
+                    style={{ fontFamily: "'Righteous', Georgia, serif" }}
                   >
                     {siteConfig.brandName}
                   </span>
@@ -166,7 +166,7 @@ export function Navbar() {
                       key={item.label}
                       href={item.href}
                       onClick={closeMobile}
-                      className="block rounded-lg px-4 py-3 text-base font-medium text-white/80 hover:bg-white/10 hover:text-gold transition-colors"
+                      className="block rounded-lg px-4 py-3 text-base font-medium text-white/90 hover:bg-white/10 hover:text-gold transition-colors"
                     >
                       {item.label}
                     </NavLink>

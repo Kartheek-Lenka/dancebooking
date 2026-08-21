@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, withDbTimeout } from "@/lib/db";
 
 const VALID_PAYMENT_STATUSES = ["PENDING", "PAID"];
 const VALID_PAYMENT_METHODS = ["PHONEPE", "CASH", "UPI", "BANK_TRANSFER", "OTHER"];
@@ -27,7 +27,16 @@ export async function PATCH(
       return NextResponse.json({ error: "Invalid payment method" }, { status: 400 });
     }
 
-    const existing = await db.booking.findUnique({ where: { id } });
+    const existing = await withDbTimeout(
+      () => db!.booking.findUnique({ where: { id } }),
+      undefined,
+      10000
+    );
+
+    if (existing === undefined) {
+      return NextResponse.json({ error: "Database is taking too long. Please try again." }, { status: 503 });
+    }
+
     if (!existing) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
@@ -46,10 +55,15 @@ export async function PATCH(
       updateData.paymentMethod = body.paymentMethod;
     }
 
-    const booking = await db.booking.update({
-      where: { id },
-      data: updateData,
-    });
+    const booking = await withDbTimeout(
+      () => db!.booking.update({ where: { id }, data: updateData }),
+      null,
+      10000
+    );
+
+    if (!booking) {
+      return NextResponse.json({ error: "Database is taking too long. Please try again." }, { status: 503 });
+    }
 
     return NextResponse.json({ success: true, booking });
   } catch (error) {

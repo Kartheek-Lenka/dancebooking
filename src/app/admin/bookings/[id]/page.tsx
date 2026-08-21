@@ -1,6 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import { getAdminSession } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { db, withDbTimeout } from "@/lib/db";
 import { BookingStatusBadge, PaymentStatusBadge } from "@/components/admin/booking-status-badge";
 import { BookingActions } from "./booking-actions";
 import { formatSongIndustry } from "@/lib/songs";
@@ -35,7 +35,11 @@ export default async function BookingDetailPage({
   }
 
   const { id } = await params;
-  const booking = await db.booking.findUnique({ where: { id } });
+  const booking = await withDbTimeout(
+    () => db!.booking.findUnique({ where: { id } }),
+    null,
+    10000
+  );
 
   if (!booking) notFound();
 

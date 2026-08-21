@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, withDbTimeout } from "@/lib/db";
 import { bookingSchema } from "@/lib/validations";
 import { BOOKING_FEE_INR } from "@/config/site";
 
@@ -25,18 +25,30 @@ export async function POST(request: NextRequest) {
 
     const data = result.data;
 
-    const recentDuplicate = await db.booking.findFirst({
-      where: {
-        email: data.email,
-        phone: data.phone,
-        slotDate: new Date(data.slotDate),
-        createdAt: {
-          gte: new Date(Date.now() - 5 * 60 * 1000),
-        },
-      },
-    });
+    const duplicateResult = await withDbTimeout(
+      () =>
+        db!.booking.findFirst({
+          where: {
+            email: data.email,
+            phone: data.phone,
+            slotDate: new Date(data.slotDate),
+            createdAt: {
+              gte: new Date(Date.now() - 5 * 60 * 1000),
+            },
+          },
+        }),
+      undefined,
+      10000
+    );
 
-    if (recentDuplicate) {
+    if (duplicateResult === undefined) {
+      return NextResponse.json(
+        { error: "Database is taking too long to respond. Please try again." },
+        { status: 503 }
+      );
+    }
+
+    if (duplicateResult) {
       return NextResponse.json(
         {
           error:
@@ -46,25 +58,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const booking = await db.booking.create({
-      data: {
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        slotDate: new Date(data.slotDate),
-        preferredTime: data.preferredTime,
-        lessonMode: data.lessonMode,
-        songIndustry: data.songIndustry,
-        songPreference: data.songPreference,
-        songAlbum: data.songAlbum?.trim() || null,
-        address:
-          data.lessonMode === "HOME_SERVICE"
-            ? data.address?.trim() || null
-            : null,
-        message: data.message?.trim() || null,
-        bookingFee: BOOKING_FEE_INR,
-      },
-    });
+    const booking = await withDbTimeout(
+      () =>
+        db!.booking.create({
+          data: {
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            slotDate: new Date(data.slotDate),
+            preferredTime: data.preferredTime,
+            lessonMode: data.lessonMode,
+            songIndustry: data.songIndustry,
+            songPreference: data.songPreference,
+            songAlbum: data.songAlbum?.trim() || null,
+            address:
+              data.lessonMode === "HOME_SERVICE"
+                ? data.address?.trim() || null
+                : null,
+            message: data.message?.trim() || null,
+            bookingFee: BOOKING_FEE_INR,
+          },
+        }),
+      null,
+      10000
+    );
+
+    if (!booking) {
+      return NextResponse.json(
+        { error: "Database is taking too long to respond. Please try again." },
+        { status: 503 }
+      );
+    }
 
     return NextResponse.json(
       { success: true, bookingId: booking.id },

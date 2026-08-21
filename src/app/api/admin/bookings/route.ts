@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { db, withDbTimeout } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
   const session = await getAdminSession();
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   const search = searchParams.get("search") || "";
   const status = searchParams.get("status") || "";
   const lessonMode = searchParams.get("lessonMode") || "";
-  const page = parseInt(searchParams.get("page") || "1");
+  const page = parseInt(searchParams.get("page") || "1") || 1;
   const limit = 20;
   const skip = (page - 1) * limit;
 
@@ -40,15 +40,29 @@ export async function GET(request: NextRequest) {
   const songIndustry = searchParams.get("songIndustry") || "";
   if (songIndustry) where.songIndustry = songIndustry;
 
-  const [bookings, total] = await Promise.all([
-    db.booking.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      skip,
-      take: limit,
-    }),
-    db.booking.count({ where }),
-  ]);
+  const data = await withDbTimeout(
+    () =>
+      Promise.all([
+        db!.booking.findMany({
+          where,
+          orderBy: { createdAt: "desc" },
+          skip,
+          take: limit,
+        }),
+        db!.booking.count({ where }),
+      ]),
+    null,
+    10000
+  );
+
+  if (!data) {
+    return NextResponse.json(
+      { error: "Database timeout", bookings: [], total: 0, page, totalPages: 0 },
+      { status: 503 }
+    );
+  }
+
+  const [bookings, total] = data;
 
   return NextResponse.json({
     bookings,

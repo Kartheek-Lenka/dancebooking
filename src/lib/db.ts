@@ -29,7 +29,7 @@ export async function withDbTimeout<T>(
   ms = 10000
 ): Promise<T> {
   return Promise.race([
-    operation(),
+    operation().catch(() => fallback),
     new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
   ]);
 }

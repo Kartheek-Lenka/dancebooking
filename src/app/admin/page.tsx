@@ -45,26 +45,41 @@ export default async function AdminDashboardPage() {
   );
 
   const data = await withDbTimeout(
-    () =>
-      Promise.all([
+    async () => {
+      const [total, byStatus, paidCount, recentBookings] = await Promise.all([
         db!.booking.count(),
-        db!.booking.count({ where: { status: "PENDING" } }),
-        db!.booking.count({ where: { status: "CONFIRMED" } }),
-        db!.booking.count({ where: { status: "COMPLETED" } }),
-        db!.booking.count({ where: { status: "CANCELLED" } }),
+        db!.booking.groupBy({
+          by: ["status"],
+          _count: { _all: true },
+        }),
         db!.booking.count({ where: { paymentStatus: "PAID" } }),
         db!.booking.findMany({
           orderBy: { createdAt: "desc" },
           take: 5,
         }),
-      ]),
+      ]);
+
+      const statusMap = new Map(
+        byStatus.map((s) => [s.status, s._count._all])
+      );
+
+      return {
+        total,
+        pending: statusMap.get("PENDING") ?? 0,
+        confirmed: statusMap.get("CONFIRMED") ?? 0,
+        completed: statusMap.get("COMPLETED") ?? 0,
+        cancelled: statusMap.get("CANCELLED") ?? 0,
+        paidCount,
+        recentBookings,
+      };
+    },
     null,
     10000
   );
 
   if (!data) return dbUnavailable;
 
-  const [total, pending, confirmed, completed, cancelled, paidCount, recentBookings] = data;
+  const { total, pending, confirmed, completed, cancelled, paidCount, recentBookings } = data;
 
   return (
     <div className="space-y-8">

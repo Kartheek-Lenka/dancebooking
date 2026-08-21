@@ -48,6 +48,17 @@ export function BookingForm() {
   });
 
   const lessonMode = watch("lessonMode");
+  const songPreferenceRaw = watch("songPreference") || "";
+  const songAlbumRaw = watch("songAlbum") || "";
+  const songsList: { name: string; album?: string }[] = songPreferenceRaw
+    ? songPreferenceRaw
+        .split(",")
+        .filter(Boolean)
+        .map((name, i) => ({
+          name: name.trim(),
+          album: songAlbumRaw.split(",")[i]?.trim() || undefined,
+        }))
+    : [];
 
   async function onSubmit(data: BookingFormData) {
     setIsSubmitting(true);
@@ -213,14 +224,21 @@ export function BookingForm() {
 
       <SongPicker
         industry={watch("songIndustry")}
-        songName={watch("songPreference")}
-        songAlbum={watch("songAlbum")}
+        songs={songsList}
         onIndustryChange={(value: SongIndustry) =>
           setValue("songIndustry", value, { shouldValidate: true })
         }
-        onSongChange={({ name, album }) => {
-          setValue("songPreference", name, { shouldValidate: true });
-          setValue("songAlbum", album ?? "", { shouldValidate: false });
+        onSongsChange={(newSongs) => {
+          setValue(
+            "songPreference",
+            newSongs.map((s) => s.name).join(", "),
+            { shouldValidate: true }
+          );
+          setValue(
+            "songAlbum",
+            newSongs.map((s) => s.album ?? "").join(", "),
+            { shouldValidate: false }
+          );
         }}
         industryError={errors.songIndustry?.message}
         songError={errors.songPreference?.message}

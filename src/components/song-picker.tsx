@@ -9,6 +9,7 @@ import {
   Search,
   X,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   SONG_INDUSTRY_CONFIG,
@@ -23,36 +24,18 @@ interface SongSelection {
 
 interface SongPickerProps {
   industry?: SongIndustry;
-  songName?: string;
-  songAlbum?: string;
+  songs?: SongSelection[];
   onIndustryChange: (industry: SongIndustry) => void;
-  onSongChange: (song: SongSelection) => void;
+  onSongsChange: (songs: SongSelection[]) => void;
   industryError?: string;
   songError?: string;
 }
 
-function resetSearchState(
-  setters: {
-    setQuery: (value: string) => void;
-    setResults: (value: SongSearchResult[]) => void;
-    setSearchError: (value: string | null) => void;
-    setIsOpen: (value: boolean) => void;
-    setIsSearching: (value: boolean) => void;
-  }
-) {
-  setters.setQuery("");
-  setters.setResults([]);
-  setters.setSearchError(null);
-  setters.setIsOpen(false);
-  setters.setIsSearching(false);
-}
-
 export function SongPicker({
   industry,
-  songName = "",
-  songAlbum,
+  songs = [],
   onIndustryChange,
-  onSongChange,
+  onSongsChange,
   industryError,
   songError,
 }: SongPickerProps) {
@@ -65,7 +48,7 @@ export function SongPicker({
   const [isOpen, setIsOpen] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
 
-  const hasSelection = Boolean(songName.trim());
+  const hasSelection = songs.length > 0;
   const canSearch =
     mode === "search" && Boolean(industry) && query.trim().length >= 2;
 
@@ -132,43 +115,41 @@ export function SongPicker({
 
   function handleIndustrySelect(next: SongIndustry) {
     onIndustryChange(next);
-    onSongChange({ name: "", album: undefined });
-    resetSearchState({
-      setQuery,
-      setResults,
-      setSearchError,
-      setIsOpen,
-      setIsSearching,
-    });
+    onSongsChange([]);
+    setQuery("");
+    setResults([]);
+    setSearchError(null);
+    setIsOpen(false);
+    setIsSearching(false);
   }
 
   function handleSelectSong(song: SongSearchResult) {
-    onSongChange({ name: song.name, album: song.album });
-    setQuery(song.name);
+    if (songs.some((s) => s.name === song.name)) return;
+    onSongsChange([...songs, { name: song.name, album: song.album }]);
+    setQuery("");
     setIsOpen(false);
   }
 
-  function clearSelection() {
-    onSongChange({ name: "", album: undefined });
-    resetSearchState({
-      setQuery,
-      setResults,
-      setSearchError,
-      setIsOpen,
-      setIsSearching,
-    });
+  function removeSong(index: number) {
+    onSongsChange(songs.filter((_, i) => i !== index));
+  }
+
+  function clearAllSongs() {
+    onSongsChange([]);
+    setQuery("");
+    setResults([]);
+    setSearchError(null);
+    setIsOpen(false);
+    setIsSearching(false);
   }
 
   function switchMode(next: "search" | "manual") {
     setMode(next);
-    onSongChange({ name: "", album: undefined });
-    resetSearchState({
-      setQuery,
-      setResults,
-      setSearchError,
-      setIsOpen,
-      setIsSearching,
-    });
+    setQuery("");
+    setResults([]);
+    setSearchError(null);
+    setIsOpen(false);
+    setIsSearching(false);
   }
 
   function handleQueryChange(value: string) {
@@ -178,9 +159,12 @@ export function SongPicker({
       setSearchError(null);
       setIsOpen(false);
     }
-    if (hasSelection && value !== songName) {
-      onSongChange({ name: "", album: undefined });
-    }
+  }
+
+  function handleManualAdd(name: string) {
+    if (!name.trim()) return;
+    if (songs.some((s) => s.name === name.trim())) return;
+    onSongsChange([...songs, { name: name.trim() }]);
   }
 
   return (
@@ -224,10 +208,10 @@ export function SongPicker({
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-medium text-warm-dark">
-                Pick your song
+                Pick your songs
               </p>
               <p className="text-xs text-warm-text/60">
-                Search thousands of {SONG_INDUSTRY_CONFIG[industry].label}{" "}
+                Search and add multiple {SONG_INDUSTRY_CONFIG[industry].label}{" "}
                 tracks, or type your own
               </p>
             </div>
@@ -262,25 +246,41 @@ export function SongPicker({
           </div>
 
           {hasSelection && (
-            <div className="mb-4 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/80 px-3 py-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100">
-                <Check className="h-4 w-4 text-emerald-600" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-warm-dark">{songName}</p>
-                <p className="truncate text-xs text-warm-text/60">
-                  {songAlbum
-                    ? `${songAlbum} · ${SONG_INDUSTRY_CONFIG[industry].label}`
-                    : SONG_INDUSTRY_CONFIG[industry].label}
-                </p>
-              </div>
+            <div className="mb-4 space-y-2">
+              {songs.map((song, index) => (
+                <div
+                  key={`${song.name}-${index}`}
+                  className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/80 px-3 py-2.5"
+                >
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                    <Check className="h-3.5 w-3.5 text-emerald-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-warm-dark">
+                      {song.name}
+                    </p>
+                    {song.album && (
+                      <p className="truncate text-xs text-warm-text/60">
+                        {song.album}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeSong(index)}
+                    className="rounded-lg p-1 text-warm-text/50 hover:bg-white hover:text-warm-dark"
+                    aria-label={`Remove ${song.name}`}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
               <button
                 type="button"
-                onClick={clearSelection}
-                className="rounded-lg p-1.5 text-warm-text/50 hover:bg-white hover:text-warm-dark"
-                aria-label="Clear selected song"
+                onClick={clearAllSongs}
+                className="text-xs text-warm-text/50 hover:text-warm-dark transition-colors"
               >
-                <X className="h-4 w-4" />
+                Clear all
               </button>
             </div>
           )}
@@ -323,41 +323,52 @@ export function SongPicker({
                       {searchError}
                     </p>
                   ) : (
-                    results.map((song) => (
-                      <button
-                        key={song.id}
-                        type="button"
-                        role="option"
-                        aria-selected={songName === song.name}
-                        onClick={() => handleSelectSong(song)}
-                        className="flex w-full items-center gap-3 border-b border-cream/60 px-3 py-3 text-left last:border-b-0 hover:bg-gold/5"
-                      >
-                        <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-cream">
-                          {song.image ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={song.image}
-                              alt=""
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center">
-                              <Music2 className="h-4 w-4 text-gold" />
-                            </div>
+                    results.map((song) => {
+                      const isSelected = songs.some((s) => s.name === song.name);
+                      return (
+                        <button
+                          key={song.id}
+                          type="button"
+                          role="option"
+                          aria-selected={isSelected}
+                          onClick={() => handleSelectSong(song)}
+                          className={cn(
+                            "flex w-full items-center gap-3 border-b border-cream/60 px-3 py-3 text-left last:border-b-0 transition-colors",
+                            isSelected
+                              ? "bg-emerald-50"
+                              : "hover:bg-gold/5"
                           )}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate font-medium text-warm-dark">
-                            {song.name}
-                          </p>
-                          <p className="truncate text-xs text-warm-text/60">
-                            {[song.album, song.artists]
-                              .filter(Boolean)
-                              .join(" · ")}
-                          </p>
-                        </div>
-                      </button>
-                    ))
+                        >
+                          <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-cream">
+                            {song.image ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={song.image}
+                                alt=""
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center">
+                                <Music2 className="h-4 w-4 text-gold" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate font-medium text-warm-dark">
+                              {song.name}
+                            </p>
+                            <p className="truncate text-xs text-warm-text/60">
+                              {[song.album, song.artists]
+                                .filter(Boolean)
+                                .join(" · ")}
+                            </p>
+                          </div>
+                          {isSelected && (
+                            <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+                          )}
+                        </button>
+                      );
+                    })
                   )}
                 </div>
               )}
@@ -365,8 +376,7 @@ export function SongPicker({
               {!isSearching &&
                 canSearch &&
                 results.length === 0 &&
-                !searchError &&
-                !hasSelection && (
+                !searchError && (
                   <p className="mt-2 text-xs text-warm-text/60">
                     No matches found. Switch to{" "}
                     <button
@@ -387,28 +397,44 @@ export function SongPicker({
               )}
             </div>
           ) : (
-            <div>
-              <input
-                type="text"
-                value={songName}
-                onChange={(event) =>
-                  onSongChange({ name: event.target.value, album: undefined })
-                }
-                placeholder="Enter the song name you want to learn"
-                className={cn(
-                  "flex h-11 w-full rounded-lg border bg-white px-4 text-base text-warm-dark transition-colors focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold",
-                  songError ? "border-red-400" : "border-cream"
-                )}
-              />
-              <p className="mt-2 text-xs text-warm-text/60">
-                Perfect if your song isn&apos;t in the catalog yet.
-              </p>
-            </div>
+            <ManualSongInput onAdd={handleManualAdd} />
           )}
 
           {songError && <p className="mt-1.5 text-sm text-red-500">{songError}</p>}
         </div>
       )}
     </div>
+  );
+}
+
+function ManualSongInput({ onAdd }: { onAdd: (name: string) => void }) {
+  const [value, setValue] = useState("");
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (value.trim()) {
+      onAdd(value.trim());
+      setValue("");
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-2">
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Enter the song name you want to learn"
+          className="flex h-11 flex-1 rounded-lg border border-cream bg-white px-4 text-base text-warm-dark transition-colors focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold"
+        />
+        <Button type="submit" size="sm" variant="outline" className="shrink-0">
+          Add
+        </Button>
+      </div>
+      <p className="text-xs text-warm-text/60">
+        Press Enter or click Add. Add multiple songs if you like.
+      </p>
+    </form>
   );
 }

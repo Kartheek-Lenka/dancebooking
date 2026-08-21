@@ -44,9 +44,9 @@ export const bookingSchema = z
     }),
     songPreference: z
       .string()
-      .min(2, "Please share the song you’d like to learn")
-      .max(300, "Song name must be less than 300 characters"),
-    songAlbum: z.string().max(200).optional(),
+      .min(2, "Please share at least one song you'd like to learn")
+      .max(1000, "Song names must be less than 1000 characters"),
+    songAlbum: z.string().max(500).optional(),
     address: z.string().max(300, "Address must be less than 300 characters").optional(),
     message: z.string().max(1000).optional(),
   })

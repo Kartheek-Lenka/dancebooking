@@ -15,8 +15,8 @@ export function Hero() {
         className="relative w-full"
       >
         <Image
-          src="/images/dance-banner-1.png"
-          alt="Dance banner"
+          src="/images/main-banner-girl.png"
+          alt="NrityaRasa dance banner"
           width={1920}
           height={600}
           priority

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { BOOKING_FEE_INR } from "@/config/site";
-import { songIndustries } from "@/lib/songs";
+import { bookingSongIndustries } from "@/lib/songs";
 
 export const lessonModes = ["ONLINE", "HOME_SERVICE"] as const;
 export const preferredTimes = ["Morning", "Afternoon", "Evening"] as const;
@@ -39,7 +39,7 @@ export const bookingSchema = z
     lessonMode: z.enum(lessonModes, {
       message: "Please choose online Zoom or home service",
     }),
-    songIndustry: z.enum(songIndustries, {
+    songIndustry: z.enum(bookingSongIndustries, {
       message: "Please choose Bollywood or Tollywood",
     }),
     songPreference: z

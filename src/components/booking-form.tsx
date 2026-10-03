@@ -10,10 +10,10 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Video, Home, ArrowLeft } from "lucide-react";
-import { SongPicker } from "@/components/song-picker";
+import { SongPicker, type SongSelection } from "@/components/song-picker";
 import { PaymentStep } from "@/components/payment-step";
 import { BookingSuccess } from "@/components/booking-success";
-import type { SongIndustry } from "@/lib/songs";
+import { MIXED_SONG_INDUSTRY, type SongIndustry } from "@/lib/songs";
 
 type Step = "form" | "payment" | "success";
 
@@ -22,6 +22,8 @@ export function BookingForm() {
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [songs, setSongs] = useState<SongSelection[]>([]);
+  const [activeIndustry, setActiveIndustry] = useState<SongIndustry>();
 
   const {
     register,
@@ -48,17 +50,30 @@ export function BookingForm() {
   });
 
   const lessonMode = watch("lessonMode");
-  const songPreferenceRaw = watch("songPreference") || "";
-  const songAlbumRaw = watch("songAlbum") || "";
-  const songsList: { name: string; album?: string }[] = songPreferenceRaw
-    ? songPreferenceRaw
-        .split(",")
-        .filter(Boolean)
-        .map((name, i) => ({
-          name: name.trim(),
-          album: songAlbumRaw.split(",")[i]?.trim() || undefined,
-        }))
-    : [];
+
+  function syncSongFields(
+    nextSongs: SongSelection[],
+    nextActive: SongIndustry | undefined
+  ) {
+    const industries = new Set(nextSongs.map((s) => s.industry));
+    const songIndustry =
+      industries.size > 1
+        ? MIXED_SONG_INDUSTRY
+        : (nextSongs[0]?.industry ?? nextActive);
+    if (songIndustry) {
+      setValue("songIndustry", songIndustry, { shouldValidate: true });
+    }
+    setValue(
+      "songPreference",
+      nextSongs.map((s) => s.name).join(", "),
+      { shouldValidate: nextSongs.length > 0 }
+    );
+    setValue(
+      "songAlbum",
+      nextSongs.map((s) => s.album ?? "").join(", "),
+      { shouldValidate: false }
+    );
+  }
 
   async function onSubmit(data: BookingFormData) {
     setIsSubmitting(true);
@@ -109,6 +124,8 @@ export function BookingForm() {
           bookingId={bookingId}
           onPaymentConfirmed={() => {
             reset();
+            setSongs([]);
+            setActiveIndustry(undefined);
             setStep("success");
           }}
         />
@@ -223,22 +240,15 @@ export function BookingForm() {
       </div>
 
       <SongPicker
-        industry={watch("songIndustry")}
-        songs={songsList}
-        onIndustryChange={(value: SongIndustry) =>
-          setValue("songIndustry", value, { shouldValidate: true })
-        }
+        industry={activeIndustry}
+        songs={songs}
+        onIndustryChange={(value: SongIndustry) => {
+          setActiveIndustry(value);
+          syncSongFields(songs, value);
+        }}
         onSongsChange={(newSongs) => {
-          setValue(
-            "songPreference",
-            newSongs.map((s) => s.name).join(", "),
-            { shouldValidate: true }
-          );
-          setValue(
-            "songAlbum",
-            newSongs.map((s) => s.album ?? "").join(", "),
-            { shouldValidate: false }
-          );
+          setSongs(newSongs);
+          syncSongFields(newSongs, activeIndustry);
         }}
         industryError={errors.songIndustry?.message}
         songError={errors.songPreference?.message}

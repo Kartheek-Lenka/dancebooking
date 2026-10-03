@@ -46,5 +46,6 @@ export const siteConfig = {
   songIndustries: [
     { value: "BOLLYWOOD", label: "Bollywood", subtitle: "Hindi songs" },
     { value: "TOLLYWOOD", label: "Tollywood", subtitle: "Telugu songs" },
+    { value: "BOTH", label: "Bollywood + Tollywood", subtitle: "Hindi & Telugu songs" },
   ],
 } as const;

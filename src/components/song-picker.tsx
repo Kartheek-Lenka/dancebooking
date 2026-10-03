@@ -17,9 +17,10 @@ import {
   type SongSearchResult,
 } from "@/lib/songs";
 
-interface SongSelection {
+export interface SongSelection {
   name: string;
   album?: string;
+  industry: SongIndustry;
 }
 
 interface SongPickerProps {
@@ -113,9 +114,10 @@ export function SongPicker({
     };
   }, [query, industry, canSearch]);
 
+  // Switching industry only changes what we search; picked songs are kept so
+  // users can mix Bollywood and Tollywood tracks.
   function handleIndustrySelect(next: SongIndustry) {
     onIndustryChange(next);
-    onSongsChange([]);
     setQuery("");
     setResults([]);
     setSearchError(null);
@@ -123,9 +125,16 @@ export function SongPicker({
     setIsSearching(false);
   }
 
+  function isPicked(name: string) {
+    return songs.some((s) => s.name === name && s.industry === industry);
+  }
+
   function handleSelectSong(song: SongSearchResult) {
-    if (songs.some((s) => s.name === song.name)) return;
-    onSongsChange([...songs, { name: song.name, album: song.album }]);
+    if (!industry || isPicked(song.name)) return;
+    onSongsChange([
+      ...songs,
+      { name: song.name, album: song.album, industry },
+    ]);
     setQuery("");
     setIsOpen(false);
   }
@@ -162,9 +171,9 @@ export function SongPicker({
   }
 
   function handleManualAdd(name: string) {
-    if (!name.trim()) return;
-    if (songs.some((s) => s.name === name.trim())) return;
-    onSongsChange([...songs, { name: name.trim() }]);
+    if (!industry || !name.trim()) return;
+    if (isPicked(name.trim())) return;
+    onSongsChange([...songs, { name: name.trim(), industry }]);
   }
 
   return (
@@ -211,8 +220,8 @@ export function SongPicker({
                 Pick your songs
               </p>
               <p className="text-xs text-warm-text/60">
-                Search and add multiple {SONG_INDUSTRY_CONFIG[industry].label}{" "}
-                tracks, or type your own
+                Search and add {SONG_INDUSTRY_CONFIG[industry].label} tracks
+                — switch above to mix in the other too
               </p>
             </div>
             <div className="inline-flex w-fit rounded-lg border border-cream bg-white p-0.5 text-xs">
@@ -259,11 +268,11 @@ export function SongPicker({
                     <p className="truncate text-sm font-medium text-warm-dark">
                       {song.name}
                     </p>
-                    {song.album && (
-                      <p className="truncate text-xs text-warm-text/60">
-                        {song.album}
-                      </p>
-                    )}
+                    <p className="truncate text-xs text-warm-text/60">
+                      {[song.album, SONG_INDUSTRY_CONFIG[song.industry].label]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
                   </div>
                   <button
                     type="button"
@@ -324,7 +333,7 @@ export function SongPicker({
                     </p>
                   ) : (
                     results.map((song) => {
-                      const isSelected = songs.some((s) => s.name === song.name);
+                      const isSelected = isPicked(song.name);
                       return (
                         <button
                           key={song.id}

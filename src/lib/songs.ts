@@ -1,6 +1,13 @@
 export const songIndustries = ["BOLLYWOOD", "TOLLYWOOD"] as const;
 export type SongIndustry = (typeof songIndustries)[number];
 
+// Stored as the booking's songIndustry when the picked songs span both industries.
+export const MIXED_SONG_INDUSTRY = "BOTH";
+export const bookingSongIndustries = [
+  ...songIndustries,
+  MIXED_SONG_INDUSTRY,
+] as const;
+
 export interface SongSearchResult {
   id: string;
   name: string;
@@ -29,6 +36,7 @@ export const SONG_INDUSTRY_CONFIG: Record<
 };
 
 export function formatSongIndustry(industry: string) {
+  if (industry === MIXED_SONG_INDUSTRY) return "Bollywood + Tollywood";
   return (
     SONG_INDUSTRY_CONFIG[industry as SongIndustry]?.label ?? industry
   );
